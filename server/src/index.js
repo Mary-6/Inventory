@@ -58,7 +58,34 @@ app.use((err, req, res, next) => {
 app.listen(config.port, () => {
   console.log(`Romarick's Vintage API on http://127.0.0.1:${config.port}`);
   autoBackup();
+  ensureBootstrap();
 });
+
+// First-run bootstrap: creates the admin account, default settings, categories and
+// the two customer channels — only when the users table is empty. Demo data is NOT
+// seeded; override credentials via ADMIN_EMAIL / ADMIN_PASSWORD env vars.
+async function ensureBootstrap() {
+  try {
+    const { rows } = await pool.query('SELECT COUNT(*)::int c FROM users');
+    if (rows[0].c > 0) return;
+    const bcrypt = require('bcryptjs');
+    const email = process.env.ADMIN_EMAIL || 'admin@romaricks.local';
+    const password = process.env.ADMIN_PASSWORD || 'admin123';
+    const hash = await bcrypt.hash(password, 10);
+    await pool.query(`INSERT INTO users(name,email,password_hash,role) VALUES('Administrator',$1,$2,'admin')`, [email, hash]);
+    const SETTINGS = [
+      ['business_name', "ROMARICK'S VINTAGE"], ['business_tagline', 'Premium Wholesale Drinks & Wine'],
+      ['business_address', ''], ['business_phone', ''], ['business_email', ''],
+      ['currency', 'XAF'], ['currency_symbol', 'FCFA'], ['receipt_footer', 'Thank you for your business!'],
+      ['receipt_show_logo', '1'], ['default_bottles_per_pallet', '12'], ['logo_path', ''],
+    ];
+    for (const [k, v] of SETTINGS) await pool.query('INSERT INTO settings(key,value) VALUES($1,$2) ON CONFLICT(key) DO NOTHING', [k, v]);
+    for (const c of ['Soft Drinks', 'Bottled Water', 'Energy Drinks', 'Juices', 'Red Wines', 'White Wines', 'Rosé Wines', 'Sparkling Wines'])
+      await pool.query('INSERT INTO categories(name) VALUES($1) ON CONFLICT(name) DO NOTHING', [c]);
+    await pool.query(`INSERT INTO customers(name) VALUES('Online Customer'),('Walk-in Customer') ON CONFLICT DO NOTHING`);
+    console.log(`Bootstrap: admin account created (${email})`);
+  } catch (e) { console.error('Bootstrap check failed:', e.message); }
+}
 
 // Automated daily backup: runs pg_dump on startup when the newest backup is >24h old.
 function autoBackup() {
