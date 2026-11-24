@@ -6,10 +6,10 @@
   "scripts": {
     "install:all": "npm --prefix server install && npm --prefix client install",
     "dev": "concurrently -n server,client \"npm --prefix server run dev\" \"npm --prefix client run dev\"",
-    "build": "npm --prefix client run build",
+    "build": "npm --prefix client ci && npm --prefix client run build && npm --prefix server ci",
     "migrate": "node server/src/migrate.js",
     "seed": "node server/src/seed.js",
-    "start": "node server/src/index.js",
+    "start": "node server/src/migrate.js && node server/src/index.js",
     "test": "npm --prefix server test"
   },
   "devDependencies": {
