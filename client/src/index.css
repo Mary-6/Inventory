@@ -1,0 +1,39 @@
+@import "tailwindcss";
+
+@theme {
+  --color-navy-50: #f6f8fa;
+  --color-navy-100: #e6ebf0;
+  --color-navy-200: #d0d8e0;
+  --color-navy-600: #64748b;
+  --color-navy-700: #3f4c63;
+  --color-navy-800: #1e293b;
+  --color-navy-900: #0f172a;
+  --color-gold-100: #f0fbe8;
+  --color-gold-300: #b6e86b;
+  --color-gold-500: #84cc16;
+  --color-gold-600: #65a30d;
+  --color-ivory: #ffffff;
+}
+
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--color-ivory); }
+.font-display { font-family: Georgia, 'Times New Roman', serif; letter-spacing: .02em; }
+
+.card { @apply bg-white rounded-xl border border-navy-100 shadow-sm; }
+.btn, .btn-primary, .btn-gold, .btn-ghost, .btn-danger {
+  @apply inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-sm font-medium transition-colors disabled:opacity-50 cursor-pointer;
+}
+.btn-primary { @apply bg-navy-800 text-white hover:bg-navy-700; }
+.btn-gold { @apply bg-gold-500 text-navy-900 hover:bg-gold-300 font-semibold; }
+.btn-ghost { @apply border border-navy-200 text-navy-700 hover:bg-navy-50; }
+.btn-danger { @apply bg-red-50 text-red-700 border border-red-200 hover:bg-red-100; }
+.input { @apply w-full rounded-lg border border-navy-200 bg-white px-3 py-2 text-sm text-navy-900 focus:outline-none focus:ring-2 focus:ring-gold-500/40 focus:border-gold-500; }
+.label { @apply block text-xs font-semibold uppercase tracking-wide text-navy-600 mb-1; }
+.th { @apply text-left text-xs font-semibold uppercase tracking-wide text-navy-600 px-3 py-2.5 border-b border-navy-100 whitespace-nowrap; }
+.td { @apply px-3 py-2.5 text-sm text-navy-800 border-b border-navy-50 whitespace-nowrap; }
+.badge { @apply inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold; }
+
+@media print {
+  body * { visibility: hidden; }
+  #print-area, #print-area * { visibility: visible; }
+  #print-area { position: absolute; inset: 0; padding: 12px; }
+}
